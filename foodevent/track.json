@@ -1,0 +1,55 @@
+{
+    "version": 2,
+    "description": "query only benchmarks for openFDA testing",
+    "operations": [
+        {
+            "name": "health-check",
+            "operation-type": "cluster-health",
+            "request-params": {
+                "wait_for_status": "green"
+            }
+        },
+        {
+            "name": "search_1",
+            "operation-type": "search",
+              "index": "foodevent",
+              "body": {
+                    "query": {
+                        "match": {
+                            "consumer.gender": "F"
+                        }
+                    }
+              }
+        },
+        {
+            "name": "search_2",
+            "operation-type": "search",
+              "index": "foodevent",
+              "body": {
+                    "query": {
+                        "match": {
+                            "consumer.age": "50"
+                        }
+                    }
+              }
+        }
+    ],
+    "challenges": [
+      {
+        "name": "query-only",
+        "default": true,
+        "schedule": [
+          {
+            "operation": "health-check"
+          },
+          {
+            "operation": "search_1",
+            "clients": 8,
+            "warmup-iterations": 1000,
+            "iterations": 1000,
+            "target-throughput": 100
+          }
+        ]
+      }
+    ]
+  }
