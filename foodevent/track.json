@@ -2,51 +2,99 @@
     "version": 2,
     "description": "query only benchmarks for openFDA testing",
     "operations": [
-        {
-            "name": "health-check",
-            "operation-type": "cluster-health",
-            "request-params": {
-                "wait_for_status": "green"
-            }
-        },
-        {
-            "name": "search_1",
-            "operation-type": "search",
-              "index": "foodevent",
-              "body": {
-                    "query": {
-                        "match": {
-                            "consumer.gender": "F"
-                        }
-                    }
-              }
-        },
-        {
-            "name": "search_2",
-            "operation-type": "search",
-              "index": "foodevent",
-              "body": {
-                    "query": {
-                        "match": {
-                            "consumer.age": "50"
-                        }
-                    }
-              }
+      {
+        "name": "health-check",
+        "operation-type": "cluster-health",
+        "request-params": {
+            "index": "foodevent",
+            "wait_for_status": "green"
         }
+      },
+      {
+        "name": "search_gender",
+        "operation-type": "search",
+          "index": "foodevent",
+          "body": {
+            "query": {
+                "match": {
+                  "consumer.gender": "F"
+                }
+            }
+          }
+      },
+      {
+        "name": "search_age",
+        "operation-type": "search",
+          "index": "foodevent",
+          "body": {
+            "query": {
+                "match": {
+                  "consumer.age": "50"
+                }
+            }
+          }
+      },
+      {
+        "name": "search_both",
+        "operation-type": "search",
+          "index": "foodevent",
+          "body": {
+            "query": {
+              "bool": {
+                "must": [ 
+                  {"term": {"consumer.age": "50" } },
+                  {"term": {"consumer.gender": "F" } } 
+                ]
+              }
+            }
+          }
+      }
     ],
     "challenges": [
       {
-        "name": "query-only",
+        "name": "query-gender",
+        "default": false,
+        "schedule": [
+          {
+            "operation": "health-check"
+          },
+          {
+            "operation": "search_gender",
+            "clients": 8,
+            "warmup-iterations": 10000,
+            "iterations": 10000,
+            "target-throughput": 100
+          }
+        ]
+      },
+      {
+        "name": "query-age",
+        "default": false,
+        "schedule": [
+          {
+            "operation": "health-check"
+          },
+          {
+            "operation": "search_gender",
+            "clients": 8,
+            "warmup-iterations": 10000,
+            "iterations": 10000,
+            "target-throughput": 100
+          }
+        ]
+      },
+      {
+        "name": "query-both",
         "default": true,
         "schedule": [
           {
             "operation": "health-check"
           },
           {
-            "operation": "search_1",
+            "operation": "search_gender",
             "clients": 8,
-            "warmup-iterations": 1000,
-            "iterations": 1000,
+            "warmup-iterations": 10000,
+            "iterations": 10000,
             "target-throughput": 100
           }
         ]
